@@ -15,4 +15,7 @@ public:
 	void set_output_weight(int i, int j, double weight);
 	double get_hidden_weight(int i, int j);
 	double get_output_weight(int i, int j);
+	double* compute(double* input, double* output);
+
+	static double sigmoid(double x);
 };
