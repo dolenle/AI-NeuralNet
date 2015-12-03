@@ -10,8 +10,8 @@ private:
 	int nh; //number of hidden nodes
 	int no; //number of outputs
 
-	double** hiddenWeights;
-	double** outputWeights;
+	double** hidden_weights;
+	double** output_weights;
 
 public:
 	NeuralNet(int ni, int nh, int no);

@@ -8,27 +8,27 @@ int main() {
 	int epochs;
 	double rate;
 
-	// cout << "Initial Neural Network: ";
-	// cin >> filename;
-	// NeuralNet n(filename);
-	NeuralNet n("wdbc/nn.init");
+	cout << "Initial Neural Network: ";
+	cin >> filename;
+	NeuralNet n(filename);
+	// NeuralNet n("wdbc/nn.init");
 
-	// cout << "Training Dataset: ";
-	// cin >> filename;
-	filename = "wdbc/wdbc.train";
+	cout << "Training Dataset: ";
+	cin >> filename;
+	// filename = "wdbc/wdbc.train";
 
-	// cout << "Number of Ehpocks: ";
-	// cin >> epochs;
-	epochs = 1;
+	cout << "Number of Ehpocks: ";
+	cin >> epochs;
+	// epochs = 100;
 
-	// cout << "Learning Rate: ";
-	// cin >> rate;
-	rate = 0.1;
+	cout << "Learning Rate: ";
+	cin >> rate;
+	// rate = 0.1;
 
 	int nsamp, samp_ni, samp_no;
 	string line;
-	ifstream samples(filename.c_str());
-	getline(samples, line);
+	ifstream samp_file(filename.c_str());
+	getline(samp_file, line);
 	stringstream(line) >> nsamp >> samp_ni >> samp_no;
 	
 	cout << "numSamples=" << nsamp << endl;
@@ -37,36 +37,56 @@ int main() {
 		exit(-1);
 	}
 	
-	double sample[n.get_ni()];
-	double target[n.get_no()];
+	double sample[nsamp][n.get_ni()];
+	double target[nsamp][n.get_no()];
+
+	//read file into array
+	for(int x=0; x<nsamp; x++) {
+		if(!getline(samp_file, line)) {
+			cerr << "Insufficient lines in file" << endl;
+			exit(-1);
+		}
+		stringstream linestream(line);
+		for(int i=0; i<n.get_ni(); i++) {
+			linestream >> sample[x][i];
+		}
+		for(int i=0; i<n.get_no(); i++) {
+			linestream >> target[x][i];
+		}
+	}
+
+	samp_file.close();
 
 	for(int e=0; e<epochs; e++) {
 		for(int x=0; x<nsamp; x++) {
-			getline(samples, line);
-			stringstream linestream(line);
-			for(int i=0; i<n.get_ni(); i++) {
-				linestream >> sample[i];
-			}
-			for(int i=0; i<n.get_no(); i++) {
-				linestream >> target[i];
-			}
-			n.train(target, sample, rate);
+			n.train(target[x], sample[x], rate);
 		}
 	}
 
-	cout.setf(ios::fixed,ios::floatfield);
+	cout << "Done training. Output file: ";
+	cin >> filename;
 
+	ofstream out(filename.c_str());
+	if(!out.is_open()) {
+		cerr << "Cannot open file" << endl;
+		exit(-1);
+	}
+
+	out << samp_ni << " " << n.get_nh() << " " << samp_no << endl;
+	out.setf(ios::fixed,ios::floatfield);
 	for(int j=0; j<n.get_nh(); j++) {
 		for(int i=0; i<=n.get_ni(); i++) {
-			cout << std::setprecision(3) << n.get_hidden_weight(i, j) << " ";
+			out << setprecision(3) << n.get_hidden_weight(i, j) << " ";
 		}
-		cout << endl;
+		out.seekp(-1, ios::cur);
+		out << endl;
 	}
 	for(int j=0; j<n.get_no(); j++) {
 		for(int i=0; i<=n.get_nh(); i++) {
-			cout << std::setprecision(3) << n.get_output_weight(i, j) << " ";
+			out << setprecision(3) << n.get_output_weight(i, j) << " ";
 		}
-		cout << endl;
+		out.seekp(-1, ios::cur);
+		out << endl;
 	}
 
 }

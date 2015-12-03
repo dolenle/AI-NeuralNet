@@ -1,13 +1,13 @@
 #include "network.h"
 
 NeuralNet::NeuralNet(int ni, int nh, int no) : ni(ni), nh(nh), no(no) {
-	hiddenWeights = new double*[nh+1];
-	for(int i=0; i<=nh; i++) {
-		hiddenWeights[i] = new double[ni+1];
+	hidden_weights = new double*[nh];
+	for(int i=0; i<nh; i++) {
+		hidden_weights[i] = new double[ni+1];
 	}
-	outputWeights = new double*[no];
+	output_weights = new double*[no];
 	for(int i=0; i<no; i++) {
-		outputWeights[i] = new double[nh+1];
+		output_weights[i] = new double[nh+1];
 	}
 }
 
@@ -25,13 +25,13 @@ NeuralNet::NeuralNet(std::string file) {
 	cout << "Nh=" << nh << endl;
 	cout << "No=" << no << endl;
 	
-	hiddenWeights = new double*[nh+1];
-	for(int i=0; i<=nh; i++) {
-		hiddenWeights[i] = new double[ni+1];
+	hidden_weights = new double*[nh];
+	for(int i=0; i<nh; i++) {
+		hidden_weights[i] = new double[ni+1];
 	}
-	outputWeights = new double*[no];
+	output_weights = new double*[no];
 	for(int i=0; i<no; i++) {
-		outputWeights[i] = new double[nh+1];
+		output_weights[i] = new double[nh+1];
 	}
 
 	for(int j=0; j<nh; j++) {
@@ -41,8 +41,8 @@ NeuralNet::NeuralNet(std::string file) {
 		}
 		stringstream linestream(line);
 		for(int i=0; i<=ni; i++) {
-			linestream >> hiddenWeights[j+1][i];
-			// cout << "hW=" << hiddenWeights[j][i] << endl;
+			linestream >> hidden_weights[j][i];
+			// cout << "hW=" << hidden_weights[j][i] << endl;
 		}
 	}
 	for(int j=0; j<no; j++) {
@@ -52,8 +52,8 @@ NeuralNet::NeuralNet(std::string file) {
 		}
 		stringstream linestream(line);
 		for(int i=0; i<=nh; i++) {
-			linestream >> outputWeights[j][i];
-			// cout << "hO=" << outputWeights[j][i] << endl;
+			linestream >> output_weights[j][i];
+			// cout << "hO=" << output_weights[j][i] << endl;
 		}
 	}
 	in.close();
@@ -61,19 +61,19 @@ NeuralNet::NeuralNet(std::string file) {
 
 //Assign weight for edge between hidden node j and input node i
 void NeuralNet::set_hidden_weight(int i, int j, double weight) {
-	hiddenWeights[j+1][i] = weight;
+	hidden_weights[j][i] = weight;
 }
 
 void NeuralNet::set_output_weight(int i, int j, double weight) {
-	outputWeights[j][i] = weight;
+	output_weights[j][i] = weight;
 }
 
 double NeuralNet::get_hidden_weight(int i, int j) {
-	return hiddenWeights[j+1][i];
+	return hidden_weights[j][i];
 }
 
 double NeuralNet::get_output_weight(int i, int j) {
-	return outputWeights[j][i];
+	return output_weights[j][i];
 }
 
 int NeuralNet::get_ni() {
@@ -89,18 +89,18 @@ int NeuralNet::get_no() {
 }
 
 double* NeuralNet::compute(double* input, double* output) {
-	double hiddenAct[nh];
+	double hidden_act[nh];
 	for(int j=0; j<nh; j++) {
-		double sum = -1*hiddenWeights[j+1][0];
+		double sum = -1*hidden_weights[j][0];
 		for(int i=0; i<ni; i++) {
-			sum+=input[i]*hiddenWeights[j+1][i+1];
+			sum+=input[i]*hidden_weights[j][i+1];
 		}
-		hiddenAct[j] = sigmoid(sum);
+		hidden_act[j] = sigmoid(sum);
 	}
 	for(int j=0; j<no; j++) {
-		double sum = -1*outputWeights[j][0];
+		double sum = -1*output_weights[j][0];
 		for(int i=0; i<nh; i++) {
-			sum+=hiddenAct[i]*outputWeights[j][i+1];
+			sum+=hidden_act[i]*output_weights[j][i+1];
 		}
 		output[j] = sigmoid(sum);
 	}
@@ -109,46 +109,45 @@ double* NeuralNet::compute(double* input, double* output) {
 
 void NeuralNet::train(double* target, double* input, double rate) {
 	using namespace std;
-	double hiddenInput[nh+1], hiddenAct[nh];
-	double hiddenError[nh+1], outputError[no];
-	hiddenInput[0] = -1;
+	double hidden_input[nh], hidden_act[nh];
+	double hidden_error[nh], output_error[no];
 	for(int j=0; j<nh; j++) {
-		double sum = -1*hiddenWeights[j+1][0];
+		double sum = -1*hidden_weights[j][0];
 		for(int i=0; i<ni; i++) {
-			sum+=input[i]*hiddenWeights[j+1][i+1];
+			sum+=input[i]*hidden_weights[j][i+1];
 		}
-		hiddenInput[j+1] = sum;
-		hiddenAct[j] = sigmoid(sum);
+		hidden_input[j] = sum;
+		hidden_act[j] = sigmoid(sum);
 	}
 	
 	for(int j=0; j<no; j++) {
-		double sum = -1*outputWeights[j][0];
+		double sum = -1*output_weights[j][0];
 		for(int i=0; i<nh; i++) {
-			sum+=hiddenAct[i]*outputWeights[j][i+1];
+			sum+=hidden_act[i]*output_weights[j][i+1];
 		}
-		outputError[j] = sigmoidPrime(sum)*(target[j]-sigmoid(sum));
+		output_error[j] = sigmoidPrime(sum)*(target[j]-sigmoid(sum));
 	}
 
 	//backpropagate to hidden layer and update
-	for(int i=0; i<=nh; i++) {
+	for(int i=0; i<nh; i++) {
 		double sum = 0;
 		for(int j=0; j<no; j++) {
-			sum+=outputWeights[j][i]*outputError[j];
+			sum+=output_weights[j][i+1]*output_error[j];
 		}
-		hiddenError[i] = sigmoidPrime(hiddenInput[i])*sum;
-		cout << "sum[" << i << "]=" << sum << endl;
-        cout << "hiddenError[" << i << "]=" << hiddenError[i] << endl;
+		hidden_error[i] = sigmoidPrime(hidden_input[i])*sum;
 		
-		for(int j=0; j<=ni; j++) {
-			hiddenWeights[i][j+1] += rate*input[j]*hiddenError[i];
+		hidden_weights[i][0] += rate*-1*hidden_error[i];;
+		for(int j=0; j<ni; j++) {
+			hidden_weights[i][j+1] += rate*input[j]*hidden_error[i];
 		}
 	}
 
+
 	//update weights to output layer
 	for(int j=0; j<no; j++) {
-		outputWeights[j][0] += -rate*outputError[j];
+		output_weights[j][0] += -rate*output_error[j];
 		for(int i=0; i<nh; i++) {
-			outputWeights[j][i+1] += rate*hiddenAct[i]*outputError[j];
+			output_weights[j][i+1] += rate*hidden_act[i]*output_error[j];
 		}
 	}
 
