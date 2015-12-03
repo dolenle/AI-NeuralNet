@@ -20,11 +20,14 @@ public:
 	void set_output_weight(int i, int j, double weight);
 	double get_hidden_weight(int i, int j);
 	double get_output_weight(int i, int j);
+	
 	double* compute(double* input, double* output);
+	void train(double* target, double* input, double rate);
 
 	int get_ni();
 	int get_nh();
 	int get_no();
 
 	static double sigmoid(double x);
+	static double sigmoidPrime(double x);
 };
