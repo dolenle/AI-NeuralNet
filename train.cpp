@@ -11,19 +11,15 @@ int main() {
 	cout << "Initial Neural Network: ";
 	cin >> filename;
 	NeuralNet n(filename);
-	// NeuralNet n("wdbc/nn.init");
 
 	cout << "Training Dataset: ";
 	cin >> filename;
-	// filename = "wdbc/wdbc.train";
 
 	cout << "Number of Ehpocks: ";
 	cin >> epochs;
-	// epochs = 100;
 
 	cout << "Learning Rate: ";
 	cin >> rate;
-	// rate = 0.1;
 
 	int nsamp, samp_ni, samp_no;
 	string line;
@@ -73,7 +69,7 @@ int main() {
 	}
 
 	out << samp_ni << " " << n.get_nh() << " " << samp_no << endl;
-	out.setf(ios::fixed,ios::floatfield);
+	out.setf(ios::fixed, ios::floatfield);
 	for(int j=0; j<n.get_nh(); j++) {
 		for(int i=0; i<=n.get_ni(); i++) {
 			out << setprecision(3) << n.get_hidden_weight(i, j) << " ";
@@ -88,5 +84,5 @@ int main() {
 		out.seekp(-1, ios::cur);
 		out << endl;
 	}
-
+	out.close();
 }
