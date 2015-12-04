@@ -4,7 +4,7 @@
 
 int main() {
 	using namespace std;
-	string line, filename = "wdbc/wdbc.test";
+	string line, filename;
 	
 	cout << "Neural Network File: ";
 	cin >> filename;
@@ -26,7 +26,10 @@ int main() {
 	int estClass[n.get_no()][nsamp];
 
 	for(int x=0; x<nsamp; x++) {
-		getline(samples, line);
+		if(!getline(samples, line)) {
+			cerr << "Insufficient lines in file" << endl;
+			exit(-1);
+		}
 		stringstream linestream(line);
 		for(int i=0; i<n.get_ni(); i++) {
 			linestream >> sample[i];

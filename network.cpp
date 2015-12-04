@@ -4,10 +4,16 @@ NeuralNet::NeuralNet(int ni, int nh, int no) : ni(ni), nh(nh), no(no) {
 	hidden_weights = new double*[nh];
 	for(int i=0; i<nh; i++) {
 		hidden_weights[i] = new double[ni+1];
+		for(int j=0; j<=ni; j++) {
+			hidden_weights[i][j] = (double) std::rand()/RAND_MAX;
+		}
 	}
 	output_weights = new double*[no];
 	for(int i=0; i<no; i++) {
 		output_weights[i] = new double[nh+1];
+		for(int j=0; j<=nh; j++) {
+			output_weights[i][j] = (double) std::rand()/RAND_MAX;
+		}
 	}
 }
 
@@ -142,7 +148,6 @@ void NeuralNet::train(double* target, double* input, double rate) {
 		}
 	}
 
-
 	//update weights to output layer
 	for(int j=0; j<no; j++) {
 		output_weights[j][0] += -rate*output_error[j];
@@ -150,7 +155,6 @@ void NeuralNet::train(double* target, double* input, double rate) {
 			output_weights[j][i+1] += rate*hidden_act[i]*output_error[j];
 		}
 	}
-
 }
 
 double NeuralNet::sigmoid(double x) {
