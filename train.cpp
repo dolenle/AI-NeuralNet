@@ -15,7 +15,7 @@ int main() {
 	cout << "Training Dataset: ";
 	cin >> filename;
 
-	cout << "Number of Ehpocks: ";
+	cout << "Number of E-pox: ";
 	cin >> epochs;
 
 	cout << "Learning Rate: ";

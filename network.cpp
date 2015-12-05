@@ -48,7 +48,6 @@ NeuralNet::NeuralNet(std::string file) {
 		stringstream linestream(line);
 		for(int i=0; i<=ni; i++) {
 			linestream >> hidden_weights[j][i];
-			// cout << "hW=" << hidden_weights[j][i] << endl;
 		}
 	}
 	for(int j=0; j<no; j++) {
@@ -59,7 +58,6 @@ NeuralNet::NeuralNet(std::string file) {
 		stringstream linestream(line);
 		for(int i=0; i<=nh; i++) {
 			linestream >> output_weights[j][i];
-			// cout << "hO=" << output_weights[j][i] << endl;
 		}
 	}
 	in.close();
